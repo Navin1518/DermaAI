@@ -1,9 +1,11 @@
-const CACHE_NAME = 'dermacare-shell-v1';
+const CACHE_NAME = 'dermacare-shell-v2';
 const APP_SHELL = [
   new URL('./', self.registration.scope).href,
   new URL('index.html', self.registration.scope).href,
   new URL('manifest.webmanifest', self.registration.scope).href,
-  new URL('icon.svg', self.registration.scope).href
+  new URL('icon-192.png', self.registration.scope).href,
+  new URL('icon-512.png', self.registration.scope).href,
+  new URL('apple-touch-icon.png', self.registration.scope).href
 ];
 
 self.addEventListener('install', event => {
