@@ -1,14 +1,14 @@
 {
   "id": "./",
-  "name": "DermaCare AI",
-  "short_name": "DermaCare",
-  "description": "Skin consultation and care planning app.",
+  "name": "HerbalGhar",
+  "short_name": "HerbalGhar",
+  "description": "Home care guidance for skin and hair, with a personalized routine and safety tips.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#FAF8F5",
-  "theme_color": "#1F2937",
+  "theme_color": "#f8f2e8",
   "icons": [
     {
       "src": "./icon-192.png?v=logo1",
