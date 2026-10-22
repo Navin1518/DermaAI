@@ -1,7 +1,9 @@
-const CACHE_NAME = 'dermacare-shell-v4';
+const CACHE_NAME = 'dermacare-shell-v5';
 const APP_SHELL = [
   new URL('./', self.registration.scope).href,
   new URL('index.html', self.registration.scope).href,
+  new URL('assets/css/dermacare-upgrades.css', self.registration.scope).href,
+  new URL('assets/js/dermacare-upgrades.js', self.registration.scope).href,
   new URL('manifest.webmanifest', self.registration.scope).href,
   new URL('icon-192.png?v=logo1', self.registration.scope).href,
   new URL('icon-512.png?v=logo1', self.registration.scope).href,

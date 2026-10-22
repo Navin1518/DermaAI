@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>try{var t=JSON.parse(localStorage.getItem('dc:theme'));if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/css/dermacare-upgrades.css">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DermaCare AI — Skin Consultation & Acne Treatment</title>
@@ -399,6 +401,71 @@
 </head>
 <body>
 
+<section class="dc-intro" id="dcIntro" aria-label="Welcome to DermaCare AI" aria-hidden="false">
+  <div class="dc-intro-orbit dc-intro-orbit-one"></div>
+  <div class="dc-intro-orbit dc-intro-orbit-two"></div>
+  <div class="dc-intro-particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="dc-intro-content">
+    <div class="dc-intro-mark"><img src="./icon-192.png?v=logo1" alt="" /></div>
+    <p class="dc-intro-brand">DermaCare <span>AI</span></p>
+    <p class="dc-intro-subtitle">AI-Powered Clinical Dermatology Workspace</p>
+    <span class="dc-intro-loader" aria-hidden="true"></span>
+  </div>
+</section>
+
+<section class="dc-auth-gate" id="dcAuthGate" aria-labelledby="dcAuthTitle" hidden>
+  <div class="dc-auth-backdrop" aria-hidden="true"></div>
+  <div class="dc-auth-card" role="dialog" aria-modal="true" aria-labelledby="dcAuthTitle" aria-describedby="dcAuthDisclaimer">
+    <div class="dc-auth-brand">
+      <img src="./icon-192.png?v=logo1" alt="" />
+      <span>DermaCare <b>AI</b></span>
+    </div>
+    <div class="dc-auth-heading">
+      <p class="dc-auth-eyebrow">YOUR PERSONAL SKINCARE SPACE</p>
+      <h1 id="dcAuthTitle">Care that starts with you.</h1>
+      <p>Sign in to your workspace or create an account preview.</p>
+    </div>
+    <div class="dc-auth-tabs" role="tablist" aria-label="Choose account action">
+      <span class="dc-auth-tab-pill" aria-hidden="true"></span>
+      <button type="button" id="dcSignInTab" role="tab" aria-selected="true" aria-controls="dcAuthForm">Sign In</button>
+      <button type="button" id="dcSignUpTab" role="tab" aria-selected="false" aria-controls="dcAuthForm">Create Account</button>
+    </div>
+    <form id="dcAuthForm" novalidate>
+      <div class="dc-auth-field" id="dcNameField" hidden>
+        <label for="dcAuthName">Your name</label>
+        <input id="dcAuthName" name="name" type="text" placeholder=" " autocomplete="name" disabled />
+      </div>
+      <div class="dc-auth-field">
+        <label for="dcAuthEmail">Email address</label>
+        <input id="dcAuthEmail" name="email" type="email" placeholder=" " autocomplete="email" required />
+      </div>
+      <div class="dc-auth-field">
+        <label for="dcAuthPassword">Password</label>
+        <input id="dcAuthPassword" name="password" type="password" placeholder=" " autocomplete="current-password" required />
+        <button class="dc-password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+      </div>
+      <div class="dc-auth-skin" id="dcAuthSkin" hidden>
+        <span>Choose your skin type <small>Optional</small></span>
+        <div role="group" aria-label="Skin type">
+          <button type="button" data-skin="oily" aria-pressed="false">Oily</button>
+          <button type="button" data-skin="dry" aria-pressed="false">Dry</button>
+          <button type="button" data-skin="combination" aria-pressed="true">Combination</button>
+          <button type="button" data-skin="sensitive" aria-pressed="false">Sensitive</button>
+        </div>
+      </div>
+      <p class="dc-auth-message" id="dcAuthMessage" role="status" aria-live="polite"></p>
+      <button class="dc-auth-submit" id="dcAuthSubmit" type="submit">Continue with demo</button>
+    </form>
+    <div class="dc-auth-divider"><span>or continue with</span></div>
+    <div class="dc-auth-socials">
+      <button type="button" data-auth-provider="Google"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.75 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.15v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.11A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.34-2.11V7.05H2.15A11 11 0 0 0 1 12c0 1.78.43 3.46 1.15 4.95l3.69-2.84z"/><path fill="#EA4335" d="M12 5.36c1.62 0 3.06.56 4.21 1.66l3.16-3.16C17.45 2.09 14.97 1 12 1a11 11 0 0 0-9.85 6.05l3.69 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
+      <button type="button" data-auth-provider="Apple"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.05 12.54c.02 2.15 1.89 2.87 1.91 2.88-.02.05-.3 1.04-.99 2.06-.6.89-1.22 1.78-2.2 1.8-.96.02-1.27-.58-2.37-.58s-1.45.56-2.35.6c-.94.03-1.65-.96-2.25-1.84-1.23-1.78-2.17-5.03-.9-7.22.63-1.09 1.75-1.78 2.97-1.8.93-.02 1.8.63 2.37.63s1.63-.78 2.74-.67c.47.02 1.8.19 2.65 1.45-.07.04-1.58.92-1.58 2.69zM15.25 6.95c.5-.6.83-1.44.74-2.27-.72.03-1.6.48-2.12 1.07-.47.54-.88 1.4-.77 2.22.8.06 1.63-.41 2.15-1.02z"/></svg>Apple</button>
+    </div>
+    <button class="dc-guest-button" id="dcGuestPreview" type="button">Explore as guest <span aria-hidden="true">→</span></button>
+    <p class="dc-auth-disclaimer" id="dcAuthDisclaimer">Demo preview only. Authentication, account creation, and social sign-in are not connected. Never enter a real password here.</p>
+  </div>
+</section>
+
 <!-- SVG icon sprite -->
 <svg width="0" height="0" style="position:absolute">
   <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="4"/></symbol>
@@ -416,6 +483,7 @@
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></symbol>
   <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
   <symbol id="i-install" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5m5 5H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></symbol>
 </svg>
 
 <div class="app">
@@ -441,10 +509,13 @@
       <div class="logo m-logo" style="display:none;padding:0"><div class="logo-mark"><img src="./icon-192.png?v=logo1" alt="" /></div><b>DermaCare <span>AI</span></b></div>
       <div class="crumb">Patient workspace / <b id="crumb">Skin Analyzer</b></div>
       <div class="spacer"></div>
+      <div data-dc="env"></div>
+      <div data-dc="theme"></div>
       <label class="search"><svg class="i" style="width:16px;height:16px"><use href="#i-search"/></svg><input placeholder="Search ingredients, doctors…" /></label>
       <button class="btn btn-ghost install-btn" id="installApp" type="button" aria-label="Install DermaCare AI"><svg class="i"><use href="#i-install"/></svg><span>Install</span></button>
       <button class="icon-btn" onclick="toast('You have 2 new reminders: PM routine & weekly check-in')"><svg class="i"><use href="#i-bell"/></svg><span class="dot"></span></button>
       <div class="profile"><div class="avatar" style="background:#F1DCC0">AM</div><div class="meta"><b>Aria Mendes</b><small>Patient · ID 20418</small></div></div>
+      <button class="icon-btn dc-signout" id="dcSignOut" type="button" aria-label="Exit guest preview" title="Exit guest preview" hidden><svg class="i"><use href="#i-logout"/></svg></button>
     </header>
 
     <main class="content">
@@ -462,7 +533,7 @@
         <div class="an-grid">
           <div class="card card-pad">
             <div class="label">Facial photo <small>JPG, PNG · up to 10MB</small></div>
-            <div class="drop" id="drop">
+            <div class="drop" id="drop" data-dc-dropzone>
               <input type="file" id="file" accept="image/*" hidden />
               <div id="dropInner">
                 <div class="up-ico"><svg class="i"><use href="#i-upload"/></svg></div>
@@ -510,6 +581,7 @@
                 <p>We'll score lesion activity, map affected zones, and suggest an evidence-based treatment path.</p>
               </div>
             </div>
+            <div data-dc="heatmap"></div>
             <div class="result-empty" id="resLoading" style="display:none">
               <div>
                 <h3>Analyzing your skin…</h3>
@@ -521,7 +593,7 @@
                 </ul>
               </div>
             </div>
-            <div id="resOut" style="display:none" class="card-pad"></div>
+            <div id="resOut" style="display:none" class="card-pad" data-dc-autoterms></div>
           </div>
         </div>
       </section>
@@ -543,6 +615,7 @@
           <div class="filters" style="margin:0" id="rtType"></div>
         </div>
 
+        <div data-dc="streak"></div>
         <div class="routine-grid">
           <div class="card">
             <div class="rt-head">
@@ -550,8 +623,8 @@
               <div><h3>Morning routine</h3><small>Protect & control · ~4 min</small></div>
               <div class="prog"><b id="amProg">0/4</b><small>steps done</small></div>
             </div>
-            <div class="steps" id="amSteps"></div>
-            <div class="rt-foot"><svg class="i"><use href="#i-info"/></svg><span>Apply sunscreen as the last step, every day, even indoors. Your actives increase photosensitivity.</span></div>
+            <div class="steps" id="amSteps" data-dc-routine="am"></div>
+            <div class="rt-foot" data-dc-autoterms><svg class="i"><use href="#i-info"/></svg><span>Apply sunscreen as the last step, every day, even indoors. Your actives increase photosensitivity.</span></div>
           </div>
           <div class="card">
             <div class="rt-head">
@@ -559,8 +632,8 @@
               <div><h3>Evening routine</h3><small>Treat & repair · ~6 min</small></div>
               <div class="prog"><b id="pmProg">0/4</b><small>steps done</small></div>
             </div>
-            <div class="steps" id="pmSteps"></div>
-            <div class="rt-foot"><svg class="i"><use href="#i-info"/></svg><span>Start actives 3 nights a week, then build up. Expect some purging during weeks 2 to 4.</span></div>
+            <div class="steps" id="pmSteps" data-dc-routine="pm"></div>
+            <div class="rt-foot" data-dc-autoterms><svg class="i"><use href="#i-info"/></svg><span>Start actives 3 nights a week, then build up. Expect some purging during weeks 2 to 4.</span></div>
           </div>
         </div>
 
@@ -568,6 +641,7 @@
           <div class="card-head"><h3>Weekly active cycling</h3><small>Rotating actives limits irritation</small></div>
           <div class="wk" id="wk"></div>
         </div>
+        <div data-dc="shelf"></div>
       </section>
 
       <!-- ============ CONSULT ============ -->
@@ -617,6 +691,7 @@
         </div>
 
         <div class="kpis" id="kpis"></div>
+        <div data-dc="compare" data-before="img/week0.jpg" data-after6="img/week6.jpg" data-after12="img/week12.jpg"></div>
 
         <div class="pg-grid">
           <div>
@@ -724,7 +799,7 @@ $$('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
 function bindSeg(id,key){
   $$(`#${id} .opt`).forEach(b=>{
     b.classList.toggle('active',b.dataset.v===S[key]);
-    b.addEventListener('click',()=>{S[key]=b.dataset.v;$$(`#${id} .opt`).forEach(x=>x.classList.toggle('active',x===b));checkGen();renderRoutine()});
+    b.addEventListener('click',()=>{S[key]=b.dataset.v;$$(`#${id} .opt`).forEach(x=>x.classList.toggle('active',x===b));if(key==='skin'&&window.DermaUp)window.DermaUp.setProfile({skinType:S.skin.toLowerCase()});checkGen();renderRoutine()});
   });
 }
 bindSeg('sevSeg','severity'); bindSeg('typeSeg','skin');
@@ -797,6 +872,16 @@ $('#genBtn').addEventListener('click',()=>{
 function showDx(){
   drop.classList.remove('scanning'); $('#genBtn').disabled=false;
   const d = DX[S.severity], k = SKIN[S.skin]; S.diagnosed = true;
+  document.dispatchEvent(new CustomEvent('dermacare:diagnosis',{
+    detail:{
+      severity:S.severity.toLowerCase(),
+      zones:S.severity==='Mild'
+        ? {forehead:'mild',cheeks:'clear',nose:'mild',chin:'clear'}
+        : S.severity==='Severe'
+          ? {forehead:'severe',cheeks:'severe',nose:'moderate',chin:'severe'}
+          : {forehead:'mild',cheeks:'moderate',nose:'mild',chin:'moderate'}
+    }
+  }));
   const ringColor = d.badge==='ok'?'var(--ok)':d.badge==='bad'?'var(--bad)':'var(--accent)';
   $('#resLoading').style.display='none';
   const out = $('#resOut'); out.style.display='block';
@@ -857,7 +942,7 @@ function renderRoutine(){
   const r = routineFor(S.skin,S.severity);
   const draw = (list,el,prog)=>{
     $(el).innerHTML = list.map(s=>`
-      <div class="step ${S.done[s.id]?'done':''}" data-id="${s.id}">
+      <div class="step ${S.done[s.id]?'done':''}" data-id="${s.id}" role="checkbox" tabindex="0" aria-checked="${!!S.done[s.id]}">
         <div class="chk"></div>
         <div><div class="cat">${s.cat}</div><b>${s.name}</b><p>${s.desc}</p>
           <div class="tags">${s.tags.map(t=>`<span class="${t==='Active'?'act':''}">${t}</span>`).join('')}</div></div>
@@ -873,7 +958,7 @@ function renderRoutine(){
   }));
   $('#rtCtx').innerHTML = `<span class="badge warn">${S.severity} acne</span><span class="badge">${S.skin} skin</span>${S.diagnosed?'<span class="badge ok"><span class="pulse"></span>Synced with AI diagnosis</span>':'<span class="muted" style="font-size:12.5px">Run the analyzer to personalize further</span>'}`;
   $('#rtType').innerHTML = ['Oily','Dry','Combination','Sensitive'].map(t=>`<button class="chip ${t===S.skin?'active':''}" data-v="${t}">${t}</button>`).join('');
-  $$('#rtType .chip').forEach(c=>c.onclick=()=>{S.skin=c.dataset.v;$$('#typeSeg .opt').forEach(x=>x.classList.toggle('active',x.dataset.v===S.skin));renderRoutine()});
+  $$('#rtType .chip').forEach(c=>c.onclick=()=>{S.skin=c.dataset.v;$$('#typeSeg .opt').forEach(x=>x.classList.toggle('active',x.dataset.v===S.skin));if(window.DermaUp)window.DermaUp.setProfile({skinType:S.skin.toLowerCase()});renderRoutine()});
   const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], today=(new Date().getDay()+6)%7;
   const plan = S.severity==='Mild'?['BHA','Rest','BHA','Rest','BHA','Rest','Mask']:['Retinoid','Recovery','Retinoid','Recovery','Retinoid','BHA','Recovery'];
   $('#wk').innerHTML = days.map((d,i)=>`<div class="wk-day ${i===today?'today':''}"><small>${d}${i===today?' · today':''}</small><b>PM</b><span class="${plan[i]==='Recovery'||plan[i]==='Rest'?'':'hot'}">${plan[i]}</span></div>`).join('');
@@ -1076,5 +1161,6 @@ $('#ciBtn').onclick=()=>{
 ========================================================= */
 checkGen(); renderRoutine(); renderDocs(); renderAppts(); renderKpis(); renderTimeline(); go(S.tab);
 </script>
+<script src="assets/js/dermacare-upgrades.js" defer></script>
 </body>
 </html>
