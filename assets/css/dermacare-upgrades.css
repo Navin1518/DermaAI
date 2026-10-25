@@ -236,6 +236,8 @@ body.dc-gate-open{overflow:hidden}
 .dc-auth-skin button:hover{transform:translateY(-1px);border-color:var(--dc-cyan)}
 .dc-auth-skin button[aria-pressed="true"]{border-color:var(--dc-cyan);background:rgba(45,212,191,.14);color:var(--dc-text)}
 .dc-auth-message{min-height:17px;margin-top:7px;color:var(--bad);font-size:10.5px;line-height:1.4}
+.dc-auth-message[data-state="success"]{color:var(--ok)}
+.dc-auth-field label small{display:block;margin-top:2px;color:var(--ink-3);font-size:9.5px;font-weight:400}
 .dc-auth-submit{width:100%;min-height:45px;border:1px solid rgba(103,232,249,.3);border-radius:11px;background:linear-gradient(110deg,#0d9488,#0891b2);color:#fff;font-size:12.5px;font-weight:650;box-shadow:0 8px 22px rgba(8,145,178,.21);transition:transform .18s,box-shadow .18s,filter .18s}
 .dc-auth-submit:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 12px 28px rgba(8,145,178,.3)}
 .dc-auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0 12px;color:var(--ink-3);font-size:10px}

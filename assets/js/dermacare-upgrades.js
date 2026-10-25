@@ -330,8 +330,10 @@
     const introStorageKey = 'dc:intro-seen-v1';
     const skinButtons = $$('#dcAuthSkin [data-skin]');
     let authMode = 'signin';
+    let signupStep = 'details';
     let selectedSkin = 'combination';
     let currentUser = null;
+    let pendingSignupContact = null;
 
     // Send credentials as cookies and turn API error responses into readable messages.
     async function requestAuthApi(path, options = {}) {
@@ -371,7 +373,7 @@
     function showAccountProfile(user) {
       currentUser = user;
       $('#dcProfileName').textContent = user.name;
-      $('#dcProfileEmail').textContent = user.email;
+      $('#dcProfileEmail').textContent = user.email || user.phone;
       $('#dcProfileAvatar').textContent = user.name
         .split(/\s+/)
         .slice(0, 2)
@@ -419,7 +421,7 @@
       gate.hidden = false;
       setWorkspaceLocked(true);
       if (messageText) showAuthMessage(messageText);
-      window.requestAnimationFrame(() => $('#dcAuthEmail').focus({preventScroll:true}));
+      window.requestAnimationFrame(() => $('#dcAuthLoginContact').focus({preventScroll:true}));
     }
 
     function finishIntro(session) {
@@ -469,10 +471,18 @@
 
     function setMode(mode) {
       authMode = mode;
+      signupStep = 'details';
+      pendingSignupContact = null;
       const isSignup = mode === 'signup';
       const tabs = $('.dc-auth-tabs');
       const nameField = $('#dcNameField');
       const nameInput = $('#dcAuthName');
+      const loginContactField = $('#dcLoginContactField');
+      const loginContactInput = $('#dcAuthLoginContact');
+      const signupEmailField = $('#dcSignupEmailField');
+      const signupPhoneField = $('#dcSignupPhoneField');
+      const signupEmailInput = $('#dcAuthEmail');
+      const signupPhoneInput = $('#dcAuthPhone');
       const skinGroup = $('#dcAuthSkin');
       const password = $('#dcAuthPassword');
       const passwordToggle = $('.dc-password-toggle');
@@ -482,8 +492,19 @@
       $('#dcSignUpTab').setAttribute('aria-selected', String(isSignup));
       nameField.hidden = !isSignup;
       nameInput.disabled = !isSignup;
-      nameInput.required = isSignup;
+      nameInput.required = isSignup && signupStep === 'details';
+      loginContactField.hidden = isSignup;
+      loginContactInput.required = !isSignup;
+      signupEmailField.hidden = !isSignup;
+      signupPhoneField.hidden = !isSignup;
+      signupEmailInput.required = false;
+      signupPhoneInput.required = false;
       skinGroup.hidden = !isSignup;
+      $('#dcOtpField').hidden = true;
+      $('#dcAuthOtp').required = false;
+      $('#dcAuthOtp').value = '';
+      $('#dcPasswordField').hidden = false;
+      password.required = true;
       password.autocomplete = isSignup ? 'new-password' : 'current-password';
       password.type = 'password';
       passwordToggle.textContent = 'Show';
@@ -492,6 +513,24 @@
       $('#dcAuthSubmit').textContent = isSignup ? 'Create account' : 'Sign in';
       message.textContent = '';
       message.removeAttribute('data-state');
+    }
+
+    function showSignupOtpStep(contactType, contactValue, message) {
+      signupStep = 'otp';
+      pendingSignupContact = {contactType, contactValue};
+      $('#dcNameField').hidden = true;
+      $('#dcAuthName').required = false;
+      $('#dcSignupEmailField').hidden = true;
+      $('#dcSignupPhoneField').hidden = true;
+      $('#dcAuthSkin').hidden = true;
+      $('#dcPasswordField').hidden = true;
+      $('#dcAuthPassword').required = false;
+      $('#dcOtpField').hidden = false;
+      $('#dcAuthOtp').required = true;
+      $('#dcOtpDestination').textContent = `Enter the code sent to ${contactValue}.`;
+      $('#dcAuthSubmit').textContent = 'Verify code';
+      showAuthMessage(message, 'success');
+      $('#dcAuthOtp').focus({preventScroll:true});
     }
 
     // Apply the correct initial button text and signup field state on first load.
@@ -523,23 +562,68 @@
       }
       const submittedMode = authMode;
       const submitButton = $('#dcAuthSubmit');
-      const name = $('#dcAuthName').value.trim();
-      const email = $('#dcAuthEmail').value.trim();
       const password = $('#dcAuthPassword').value;
-      const requestBody = submittedMode === 'signup'
-        ? {name, email, password, skinType:selectedSkin, concerns:[]}
-        : {email, password};
+      let requestPath;
+      let requestBody;
+
+      if (submittedMode === 'signin') {
+        const loginContact = $('#dcAuthLoginContact').value.trim();
+        requestPath = '/login';
+        requestBody = loginContact.includes('@')
+          ? {email:loginContact, password}
+          : {phone:loginContact, password};
+      } else if (signupStep === 'details') {
+        const email = $('#dcAuthEmail').value.trim();
+        const phone = $('#dcAuthPhone').value.trim();
+
+        if (Boolean(email) === Boolean(phone)) {
+          showAuthMessage('Enter either an email address or a phone number, not both.');
+          return;
+        }
+
+        requestPath = '/register';
+        requestBody = {
+          name:$('#dcAuthName').value.trim(),
+          password,
+          skinType:selectedSkin,
+          concerns:[]
+        };
+        if (email) requestBody.email = email;
+        if (phone) requestBody.phone = phone;
+      } else {
+        if (!pendingSignupContact) {
+          showAuthMessage('Start account creation again to request a new code.');
+          return;
+        }
+        requestPath = '/verify-otp';
+        requestBody = {
+          [pendingSignupContact.contactType]:pendingSignupContact.contactValue,
+          code:$('#dcAuthOtp').value.trim()
+        };
+      }
 
       submitButton.disabled = true;
-      submitButton.textContent = submittedMode === 'signup' ? 'Creating account…' : 'Signing in…';
+      submitButton.textContent = submittedMode === 'signin'
+        ? 'Signing in…'
+        : signupStep === 'details' ? 'Sending code…' : 'Verifying code…';
       $('#dcAuthMessage').textContent = '';
       $('#dcAuthMessage').removeAttribute('data-state');
 
       try {
-        const result = await requestAuthApi(
-          submittedMode === 'signup' ? '/register' : '/login',
-          {method:'POST', body:JSON.stringify(requestBody)}
-        );
+        const result = await requestAuthApi(requestPath, {
+          method:'POST',
+          body:JSON.stringify(requestBody)
+        });
+        if (submittedMode === 'signup' && signupStep === 'details') {
+          const contactType = requestBody.email ? 'email' : 'phone';
+          const contactValue = requestBody.email || requestBody.phone;
+          showSignupOtpStep(
+            contactType,
+            contactValue,
+            result.message || 'Verification code sent. Check your inbox or phone.'
+          );
+          return;
+        }
         try {
           localStorage.removeItem(authStorageKey);
         } catch (error) {
@@ -553,7 +637,30 @@
         showAuthMessage(getAuthErrorMessage(error));
       } finally {
         submitButton.disabled = false;
-        submitButton.textContent = authMode === 'signup' ? 'Create account' : 'Sign in';
+        if (authMode === 'signup' && signupStep === 'otp') {
+          submitButton.textContent = 'Verify code';
+        } else {
+          submitButton.textContent = authMode === 'signup' ? 'Create account' : 'Sign in';
+        }
+      }
+    });
+    $('#dcResendOtp').addEventListener('click', async event => {
+      if (!pendingSignupContact) return;
+
+      const button = event.currentTarget;
+      button.disabled = true;
+      try {
+        const result = await requestAuthApi('/resend-otp', {
+          method:'POST',
+          body:JSON.stringify({
+            [pendingSignupContact.contactType]:pendingSignupContact.contactValue
+          })
+        });
+        showAuthMessage(result.message, 'success');
+      } catch (error) {
+        showAuthMessage(getAuthErrorMessage(error));
+      } finally {
+        button.disabled = false;
       }
     });
     $$('#dcAuthGate [data-auth-provider]').forEach(button => button.addEventListener('click', () => {
@@ -618,7 +725,7 @@
       $('#dcProfileName').textContent = 'Guest preview';
       $('#dcProfileEmail').textContent = 'Guest session';
       $('#dcProfileAvatar').textContent = 'DC';
-      window.requestAnimationFrame(() => $('#dcAuthEmail').focus({preventScroll:true}));
+      window.requestAnimationFrame(() => $('#dcAuthLoginContact').focus({preventScroll:true}));
     });
 
     gate.addEventListener('keydown', event => {

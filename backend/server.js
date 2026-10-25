@@ -40,7 +40,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// All four endpoints are grouped below the /api/auth URL prefix.
+// All authentication endpoints are grouped below the /api/auth URL prefix.
 app.use("/api/auth", authRoutes);
 
 // Connect to the database first so requests are not accepted before it is ready.

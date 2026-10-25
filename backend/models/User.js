@@ -14,9 +14,15 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
     unique: true,
+    sparse: true,
     lowercase: true,
+    trim: true
+  },
+  phone: {
+    type: String,
+    unique: true,
+    sparse: true,
     trim: true
   },
   // Store only a bcrypt hash, never the password entered by the user.
@@ -33,6 +39,29 @@ const userSchema = new mongoose.Schema({
   concerns: {
     type: [String],
     default: []
+  },
+  // A user cannot log in until they prove they can receive a code at this contact.
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  // Keep only a keyed hash of the one-time code; never store or return the code.
+  verificationCodeHash: {
+    type: String,
+    select: false
+  },
+  verificationCodeExpiresAt: {
+    type: Date,
+    select: false
+  },
+  verificationCodeSentAt: {
+    type: Date,
+    select: false
+  },
+  verificationAttempts: {
+    type: Number,
+    default: 0,
+    select: false
   },
   createdAt: {
     type: Date,
