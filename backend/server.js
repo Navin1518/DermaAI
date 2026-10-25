@@ -43,6 +43,11 @@ app.use(cookieParser());
 // All authentication endpoints are grouped below the /api/auth URL prefix.
 app.use("/api/auth", authRoutes);
 
+// Render and other hosting services use this route to check server availability.
+app.get("/health", (request, response) => {
+  response.status(200).json({ status: "ok" });
+});
+
 // Connect to the database first so requests are not accepted before it is ready.
 async function startServer() {
   try {

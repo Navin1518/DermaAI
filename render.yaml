@@ -1,0 +1,32 @@
+# Purpose: Tell Render how to build and run the DermaCare AI authentication API.
+# Render generates the JWT secret; private database and Gmail settings are added
+# securely in the Render dashboard when you create the service.
+services:
+  - type: web
+    name: dermaai-auth-1401223159
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        value: https://navin1518.github.io
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGO_URI
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_SECURE
+        value: "true"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false

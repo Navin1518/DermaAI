@@ -20,7 +20,7 @@ async function connectToDatabase() {
 
   // A new MongoDB database has no users collection until its first user is saved.
   if (!collectionExists) {
-    await usersCollection.createCollection();
+    await mongoose.connection.db.createCollection("users");
   }
 
   const existingIndexes = await usersCollection.indexes();

@@ -29,17 +29,39 @@ Use Node.js 20 or newer.
 
 The default API address is `http://localhost:5000`.
 
+## Deploy the app
+
+The root `render.yaml` defines a Render web service named
+`dermaai-auth-1401223159`. Open
+[Render's Blueprint deployment page](https://render.com/deploy?repo=https://github.com/Navin1518/DermaAI)
+and create a Blueprint from this repository. Render builds the API from the
+`backend` folder, generates a private JWT secret, and asks you to enter the
+MongoDB Atlas URI and Gmail SMTP username/App Password privately. Never put
+those secret values into GitHub.
+
+To connect Atlas, add Render's outbound IP access as required by your Atlas
+network-access rules. Do not put Atlas credentials in the repository.
+
+If you also want phone OTP, add `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and
+`TWILIO_PHONE_NUMBER` in the Render service's Environment settings. A Twilio
+account and a sender permitted to send SMS are required.
+
+The `.github/workflows/deploy-pages.yml` workflow publishes only the frontend
+files to GitHub Pages whenever `main` is updated. It attempts to enable Pages
+with GitHub Actions automatically. Check the repository's Actions tab after
+the next push for its deployment result.
+
 ## Connect the frontend
 
 The frontend's API base URL is the `dermacare-api-url` meta tag in the root
-`index.html`. It defaults to `http://localhost:5000`. When the backend is
-deployed, change its value to the backend's HTTPS origin, without `/api/auth`.
-The backend's `CLIENT_URL` must then be the exact origin serving the frontend.
+`index.html`; the Render blueprint uses
+`https://dermaai-auth-1401223159.onrender.com`. The backend `CLIENT_URL` must
+match the frontend origin, `https://navin1518.github.io`. Render's free web
+service may take a short time to wake after being idle.
 
-GitHub stores this source code, but GitHub Pages serves static frontend files
-and does not run this Node.js server. Deploy the backend to a Node.js hosting
-service and configure its environment variables before signup and login can
-work on a publicly hosted frontend. Never commit `.env` or database credentials.
+GitHub Pages hosts the static frontend; Render runs the Node.js backend.
+Signup and login work after the Render Blueprint is created and its private
+MongoDB and email settings are saved.
 
 ## Authentication endpoints
 
