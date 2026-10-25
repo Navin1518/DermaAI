@@ -8,6 +8,7 @@
 <title>DermaCare AI — Skin Consultation & Acne Treatment</title>
 <meta name="theme-color" content="#1F2937" />
 <meta name="description" content="DermaCare AI skin consultation and care planning app." />
+<meta name="dermacare-api-url" content="http://localhost:5000" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="DermaCare AI" />
@@ -423,7 +424,7 @@
     <div class="dc-auth-heading">
       <p class="dc-auth-eyebrow">YOUR PERSONAL SKINCARE SPACE</p>
       <h1 id="dcAuthTitle">Care that starts with you.</h1>
-      <p>Sign in to your workspace or create an account preview.</p>
+      <p>Sign in to your workspace or create a secure account.</p>
     </div>
     <div class="dc-auth-tabs" role="tablist" aria-label="Choose account action">
       <span class="dc-auth-tab-pill" aria-hidden="true"></span>
@@ -462,7 +463,7 @@
       <button type="button" data-auth-provider="Apple"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.05 12.54c.02 2.15 1.89 2.87 1.91 2.88-.02.05-.3 1.04-.99 2.06-.6.89-1.22 1.78-2.2 1.8-.96.02-1.27-.58-2.37-.58s-1.45.56-2.35.6c-.94.03-1.65-.96-2.25-1.84-1.23-1.78-2.17-5.03-.9-7.22.63-1.09 1.75-1.78 2.97-1.8.93-.02 1.8.63 2.37.63s1.63-.78 2.74-.67c.47.02 1.8.19 2.65 1.45-.07.04-1.58.92-1.58 2.69zM15.25 6.95c.5-.6.83-1.44.74-2.27-.72.03-1.6.48-2.12 1.07-.47.54-.88 1.4-.77 2.22.8.06 1.63-.41 2.15-1.02z"/></svg>Apple</button>
     </div>
     <button class="dc-guest-button" id="dcGuestPreview" type="button">Explore as guest <span aria-hidden="true">→</span></button>
-    <p class="dc-auth-disclaimer" id="dcAuthDisclaimer">Demo preview only. Authentication, account creation, and social sign-in are not connected. Never enter a real password here.</p>
+    <p class="dc-auth-disclaimer" id="dcAuthDisclaimer">Create an account with your email and password. Google and Apple sign-in are not available yet.</p>
   </div>
 </section>
 
@@ -514,7 +515,7 @@
       <label class="search"><svg class="i" style="width:16px;height:16px"><use href="#i-search"/></svg><input placeholder="Search ingredients, doctors…" /></label>
       <button class="btn btn-ghost install-btn" id="installApp" type="button" aria-label="Install DermaCare AI"><svg class="i"><use href="#i-install"/></svg><span>Install</span></button>
       <button class="icon-btn" onclick="toast('You have 2 new reminders: PM routine & weekly check-in')"><svg class="i"><use href="#i-bell"/></svg><span class="dot"></span></button>
-      <div class="profile"><div class="avatar" style="background:#F1DCC0">AM</div><div class="meta"><b>Aria Mendes</b><small>Patient · ID 20418</small></div></div>
+      <div class="profile"><div class="avatar" id="dcProfileAvatar" style="background:#F1DCC0">DC</div><div class="meta"><b id="dcProfileName">Guest preview</b><small id="dcProfileEmail">Guest session</small></div></div>
       <button class="icon-btn dc-signout" id="dcSignOut" type="button" aria-label="Exit guest preview" title="Exit guest preview" hidden><svg class="i"><use href="#i-logout"/></svg></button>
     </header>
 

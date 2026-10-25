@@ -3,7 +3,13 @@
 
   const config = {
     amSelector: '[data-dc-routine="am"]',
-    pmSelector: '[data-dc-routine="pm"]'
+    pmSelector: '[data-dc-routine="pm"]',
+    // Set window.DERMA_API_BASE_URL before this script when the API is deployed.
+    authApiBaseUrl: (
+      window.DERMA_API_BASE_URL ||
+      document.querySelector('meta[name="dermacare-api-url"]')?.content ||
+      'http://localhost:5000'
+    ).replace(/\/+$/, '')
   };
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -325,6 +331,65 @@
     const skinButtons = $$('#dcAuthSkin [data-skin]');
     let authMode = 'signin';
     let selectedSkin = 'combination';
+    let currentUser = null;
+
+    // Send credentials as cookies and turn API error responses into readable messages.
+    async function requestAuthApi(path, options = {}) {
+      const response = await fetch(`${config.authApiBaseUrl}/api/auth${path}`, {
+        credentials: 'include',
+        headers: options.body ? {'Content-Type':'application/json'} : {},
+        ...options
+      });
+      let result;
+      try {
+        result = await response.json();
+      } catch (error) {
+        throw new Error('The authentication API returned an invalid response. Check that the backend URL is correct.');
+      }
+      if (!response.ok) {
+        const error = new Error(result.message || `Authentication request failed (${response.status}).`);
+        error.status = response.status;
+        throw error;
+      }
+      return result;
+    }
+
+    function showAuthMessage(text, state = 'error') {
+      const message = $('#dcAuthMessage');
+      message.textContent = text;
+      message.dataset.state = state;
+    }
+
+    function getAuthErrorMessage(error) {
+      if (error instanceof TypeError) {
+        return `Could not reach the authentication API at ${config.authApiBaseUrl}. Check that the backend is running and its frontend URL is allowed in CORS.`;
+      }
+      return error.message;
+    }
+
+    // Update the dashboard header after a real account logs in.
+    function showAccountProfile(user) {
+      currentUser = user;
+      $('#dcProfileName').textContent = user.name;
+      $('#dcProfileEmail').textContent = user.email;
+      $('#dcProfileAvatar').textContent = user.name
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part.charAt(0).toUpperCase())
+        .join('');
+      if (signOut) {
+        signOut.setAttribute('aria-label', 'Log out');
+        signOut.title = 'Log out';
+      }
+      DermaUp.setProfile({skinType:user.skinType});
+    }
+
+    function enterWorkspace(session) {
+      if (session.mode === 'user') showAccountProfile(session.user);
+      else DermaUp.setProfile({skinType:session.skinType});
+      gate.hidden = true;
+      setWorkspaceLocked(false);
+    }
 
     function readGuestState() {
       try {
@@ -350,29 +415,35 @@
       if (signOut) signOut.hidden = locked;
     }
 
-    function showAuth() {
+    function showAuth(messageText) {
       gate.hidden = false;
       setWorkspaceLocked(true);
+      if (messageText) showAuthMessage(messageText);
       window.requestAnimationFrame(() => $('#dcAuthEmail').focus({preventScroll:true}));
     }
 
-    function finishIntro(guestState) {
+    function finishIntro(session) {
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       intro.classList.add('dc-intro-exit');
       window.setTimeout(() => {
         intro.hidden = true;
         intro.setAttribute('aria-hidden', 'true');
-        if (guestState) {
-          gate.hidden = true;
-          setWorkspaceLocked(false);
-          DermaUp.setProfile({skinType:guestState.skinType});
-        } else {
-          showAuth();
-        }
+        if (session && session.mode !== 'error') enterWorkspace(session);
+        else showAuth(session && session.message);
       }, reducedMotion ? 50 : 620);
     }
 
     const guestState = readGuestState();
+    // Reuse a valid httpOnly cookie so a logged-in user stays signed in after refresh.
+    const sessionPromise = guestState
+      ? Promise.resolve({mode:'guest', skinType:guestState.skinType})
+      : requestAuthApi('/me', {method:'GET'}).then(result => ({mode:'user', user:result.user})).catch(error => {
+        if (error.status !== 401) {
+          console.warn('Unable to restore the authentication session.', error);
+          return {mode:'error', message:getAuthErrorMessage(error)};
+        }
+        return null;
+      });
     let hasSeenIntro = false;
     try {
       hasSeenIntro = localStorage.getItem(introStorageKey) === '1';
@@ -384,16 +455,16 @@
     if (hasSeenIntro) {
       intro.hidden = true;
       intro.setAttribute('aria-hidden', 'true');
-      if (guestState) {
-        setWorkspaceLocked(false);
-        DermaUp.setProfile({skinType:guestState.skinType});
-      } else {
-        showAuth();
-      }
+      sessionPromise.then(session => {
+        if (session && session.mode !== 'error') enterWorkspace(session);
+        else showAuth(session && session.message);
+      });
     } else {
       setWorkspaceLocked(true);
       const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 450 : 1880;
-      window.setTimeout(() => finishIntro(guestState), duration);
+      window.setTimeout(() => {
+        sessionPromise.then(finishIntro);
+      }, duration);
     }
 
     function setMode(mode) {
@@ -418,10 +489,13 @@
       passwordToggle.textContent = 'Show';
       passwordToggle.setAttribute('aria-label', 'Show password');
       passwordToggle.setAttribute('aria-pressed', 'false');
-      $('#dcAuthSubmit').textContent = isSignup ? 'Create demo preview' : 'Continue with demo';
+      $('#dcAuthSubmit').textContent = isSignup ? 'Create account' : 'Sign in';
       message.textContent = '';
       message.removeAttribute('data-state');
     }
+
+    // Apply the correct initial button text and signup field state on first load.
+    setMode(authMode);
 
     $('#dcSignInTab').addEventListener('click', () => setMode('signin'));
     $('#dcSignUpTab').addEventListener('click', () => setMode('signup'));
@@ -441,15 +515,46 @@
       password.focus({preventScroll:true});
     });
 
-    form.addEventListener('submit', event => {
+    form.addEventListener('submit', async event => {
       event.preventDefault();
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
       }
-      const message = $('#dcAuthMessage');
-      message.dataset.state = 'error';
-      message.textContent = 'Authentication is not connected in this demo. Use Explore as guest; no credentials are sent or saved.';
+      const submittedMode = authMode;
+      const submitButton = $('#dcAuthSubmit');
+      const name = $('#dcAuthName').value.trim();
+      const email = $('#dcAuthEmail').value.trim();
+      const password = $('#dcAuthPassword').value;
+      const requestBody = submittedMode === 'signup'
+        ? {name, email, password, skinType:selectedSkin, concerns:[]}
+        : {email, password};
+
+      submitButton.disabled = true;
+      submitButton.textContent = submittedMode === 'signup' ? 'Creating account…' : 'Signing in…';
+      $('#dcAuthMessage').textContent = '';
+      $('#dcAuthMessage').removeAttribute('data-state');
+
+      try {
+        const result = await requestAuthApi(
+          submittedMode === 'signup' ? '/register' : '/login',
+          {method:'POST', body:JSON.stringify(requestBody)}
+        );
+        try {
+          localStorage.removeItem(authStorageKey);
+        } catch (error) {
+          console.warn('Unable to clear the saved guest preview.', error);
+        }
+        form.reset();
+        setMode('signin');
+        enterWorkspace({mode:'user', user:result.user});
+      } catch (error) {
+        console.error('Authentication request failed.', error);
+        showAuthMessage(getAuthErrorMessage(error));
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = authMode === 'signup' ? 'Create account' : 'Sign in';
+      }
     });
     $$('#dcAuthGate [data-auth-provider]').forEach(button => button.addEventListener('click', () => {
       const message = $('#dcAuthMessage');
@@ -478,8 +583,21 @@
       DermaUp.setProfile({skinType});
     });
 
-    if (signOut) signOut.addEventListener('click', () => {
+    if (signOut) signOut.addEventListener('click', async () => {
       let storageWarning = false;
+      if (currentUser) {
+        signOut.disabled = true;
+        try {
+          await requestAuthApi('/logout', {method:'POST'});
+          currentUser = null;
+        } catch (error) {
+          console.error('Could not log out from the authentication API.', error);
+          showAuthMessage(`Could not log out: ${error.message}`);
+          signOut.disabled = false;
+          return;
+        }
+        signOut.disabled = false;
+      }
       try {
         localStorage.removeItem(authStorageKey);
       } catch (error) {
@@ -493,6 +611,13 @@
       }
       gate.hidden = false;
       setWorkspaceLocked(true);
+      if (signOut) {
+        signOut.setAttribute('aria-label', 'Exit preview');
+        signOut.title = 'Exit preview';
+      }
+      $('#dcProfileName').textContent = 'Guest preview';
+      $('#dcProfileEmail').textContent = 'Guest session';
+      $('#dcProfileAvatar').textContent = 'DC';
       window.requestAnimationFrame(() => $('#dcAuthEmail').focus({preventScroll:true}));
     });
 
